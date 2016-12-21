@@ -5,7 +5,6 @@ from selenium.webdriver.support import expected_conditions as EC
 import sys
 import os
 from datetime import datetime
-import time
 
 
 class createBrowser:
@@ -29,19 +28,21 @@ class createBrowser:
         self.numOfPics = self.getNumOfFiles()
         print('numOfPics: ' + str(self.numOfPics))
 
-    def __init__(self, url):
+    def __init__(self, url, actions=None):
         self.setNumOfPics()
         self.driver = webdriver.PhantomJS()
         self.driver.implicitly_wait(10)
         print('getting page data with the url: ' + url)
         self.driver.get(url)
         try:
-            element = WebDriverWait(self.driver, 30).until(
-                EC.presence_of_element_located((By.ID, 'header')))
+            WebDriverWait(self.driver, 100).until(
+                # EC.text_to_be_present_in_element((By.CLASS_NAME,
+                # 'volume_text'), ''))
+                EC.presence_of_element_located((By.XPATH, '//div[@class="volume_text" and contains(./text(), "*")]')))
         except Exception as e:
             print(e)
         finally:
-            print(element)
+            pass
 
         self.logs.append(datetime.now().strftime(
             '%Y/%m/%d %H:%M:%S') + ' : ' + 'got page data with the url: ' + url)
@@ -103,36 +104,41 @@ def checkExistenceOfValidFile():
         return False
 
 
-def useBrowser(url, waitFor=10):
+def useBrowser(url, actions=None):
     result = [0, 0]
-    browser = createBrowser(url)
+    browser = createBrowser(url, actions)
     result[0] = browser.getPageData()
-    time.sleep(waitFor)
     result[1] = browser.takeScreenshot()
     browser.saveLog()
     browser.quit()
     return result
 
 
-def useBrowsers():
+def useBrowsers(actions=None):
     results = list()
     urls = readURLs()
     for url in urls:
-        results.append(useBrowser(url))
+        results.append(useBrowser(url, actions))
     return results
 
 
-def main(arg=None):
+def main(arg=None, actions=None):
     results = 0
     createDirIfNotExists()
     if arg is None:
         if checkExistenceOfValidFile():
-            results = useBrowsers()
+            if actions is None:
+                results = useBrowsers()
+            else:
+                results = useBrowsers(actions)
         else:
             print('A Valid File For URLS Is In Need.')
     else:
         url = arg
-        results = useBrowser(url)
+        if actions is None:
+            results = useBrowser(url, actions)
+        else:
+            results = useBrowser(url)
     return results
 
 
