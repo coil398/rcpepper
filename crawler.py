@@ -18,7 +18,7 @@ class createBrowser:
         i = 0
         while True:
             path = self.createPicPath(i)
-            print('path: ' + path)
+            # print('path: ' + path)
             if os.path.exists(path):
                 i = i + 1
             else:
@@ -26,7 +26,7 @@ class createBrowser:
 
     def setNumOfPics(self):
         self.numOfPics = self.getNumOfFiles()
-        print('numOfPics: ' + str(self.numOfPics))
+        # print('numOfPics: ' + str(self.numOfPics))
 
     def __init__(self, url, actions=None):
         self.setNumOfPics()
@@ -46,6 +46,12 @@ class createBrowser:
 
         self.logs.append(datetime.now().strftime(
             '%Y/%m/%d %H:%M:%S') + ' : ' + 'got page data with the url: ' + url)
+
+        if actions is None:
+            pass
+        else:
+            self.actionsResult = actions(self.driver, url)
+
         print('done...')
 
     def getPageData(self):
@@ -86,7 +92,7 @@ def readURLs():
     browsers = list()
     with open('./url.list', 'r') as f:
         for line in f:
-            browsers.append(line)
+            browsers.append('http://nao:nao@' + line + '.local')
     return browsers
 
 
@@ -105,10 +111,14 @@ def checkExistenceOfValidFile():
 
 
 def useBrowser(url, actions=None):
-    result = [0, 0]
+    result = list()
     browser = createBrowser(url, actions)
     result[0] = browser.getPageData()
-    result[1] = browser.takeScreenshot()
+    # result[1] = browser.takeScreenshot()
+    if actions is None:
+        pass
+    else:
+        result.append(browser.actionsResult)
     browser.saveLog()
     browser.quit()
     return result

@@ -20,9 +20,16 @@ class scraping:
         print(self.settings)
 
 
+def actions(driver, url):
+    pages = list()
+    driver.find_element_by_css_selector("#menu-network > img").click()
+    pages.append(driver.page_source)
+    driver.find_element_by_css_selector("#menu-apps > img").click()
+    pages.append(driver.page_source)
+
+
 def main(url, settings):
-    page = crawler.main(url)[0]
-    print(page)
+    page = crawler.main(url, actions)[0]
     # with open('./html.txt', 'r') as f:
     #    page = f.read()
 
@@ -32,7 +39,7 @@ def main(url, settings):
 
 
 if __name__ == '__main__':
-    URL = 'http://nao:nao@atelier34.local'
+    URL = 'http://nao:nao@atelier40.local'
     settings = {
         'volume': None,
         'battery': None,
